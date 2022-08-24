@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.meditaionapp.ui.theme.*
 
+@ExperimentalFoundationApi
 @Composable
 fun HomeScreen() {
     Box(
@@ -77,8 +78,17 @@ fun HomeScreen() {
                 )
             )
 
-
         }
+        BottomMenu(
+            items = listOf(
+                BottomMenuItem("Home", R.drawable.ic_home),
+                BottomMenuItem("Meditate", R.drawable.ic_bubble),
+                BottomMenuItem("Sleep", R.drawable.ic_moon),
+                BottomMenuItem("Music", R.drawable.ic_music),
+                BottomMenuItem("Profile", R.drawable.ic_profile),
+            ),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
 
     }
 }
@@ -178,12 +188,12 @@ fun DailyThoughts() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@ExperimentalFoundationApi
 @Composable
 fun FeaturesSection(features: List<Feature>) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
     ) {
         Text(
             text = "Featured",
@@ -192,7 +202,7 @@ fun FeaturesSection(features: List<Feature>) {
         )
         LazyVerticalGrid(
             cells = GridCells.Fixed(2),
-            contentPadding = PaddingValues(7.5.dp, end = 7.5.dp, bottom = 10.dp),
+            contentPadding = PaddingValues(7.5.dp, end = 7.5.dp, bottom = 100.dp),
             modifier = Modifier.fillMaxHeight()
         ) {
             items(features.size) {
@@ -287,5 +297,93 @@ fun FeatureItem(feature: Feature) {
                     )
                     .padding(vertical = 6.dp, horizontal = 15.dp))
         }
+    }
+}
+
+@Composable
+fun BottomMenu(
+    items: List<BottomMenuItem>,
+    modifier: Modifier = Modifier,
+    activeLabelColor: Color = Color.White,
+    inActiveLabelColor: Color = AquaBlue,
+    activeIconColor: Color = Color.White,
+    activeColor: Color = ButtonBlue,
+    initialSelectedIndex: Int = 0
+) {
+    var selectedItemIndex by remember {
+        mutableStateOf(initialSelectedIndex)
+    }
+
+    Row(
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .padding(vertical = 10.dp, horizontal = 5.dp)
+            .fillMaxWidth()
+            .background(DeepBlue),
+
+        ) {
+        items.forEachIndexed { index, item ->
+            CustomBottomMenuItem(
+                item,
+                modifier,
+                activeLabelColor,
+                inActiveLabelColor,
+                activeIconColor,
+                activeColor,
+                index == selectedItemIndex,
+            ) {
+                selectedItemIndex = index
+            }
+        }
+    }
+
+}
+
+@Composable
+fun CustomBottomMenuItem(
+    item: BottomMenuItem,
+    modifier: Modifier = Modifier,
+    activeLabelColor: Color = Color.White,
+    inActiveLabelColor: Color = AquaBlue,
+    activeIconColor: Color = Color.White,
+    activeColor: Color = ButtonBlue,
+    selected: Boolean = false,
+    onItemClick: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .padding(top = 8.dp)
+            .clickable {
+                onItemClick()
+            },
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = modifier
+                .clip(
+                    RoundedCornerShape(
+                        10.dp
+                    )
+                )
+                .background(if (selected) activeColor else DeepBlue)
+                .padding(10.dp)
+
+        ) {
+            Icon(
+                painter = painterResource(id = item.iconId),
+                contentDescription = item.title,
+                tint = if (selected) activeIconColor else inActiveLabelColor,
+                modifier = modifier.size(20.dp)
+            )
+        }
+        Text(
+            text = item.title,
+            style = MaterialTheme.typography.body1,
+            color = if (selected) activeLabelColor else inActiveLabelColor,
+            modifier = modifier.padding(top = 4.dp)
+        )
     }
 }
